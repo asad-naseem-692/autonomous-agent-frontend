@@ -10,8 +10,8 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/login");
   };
 
@@ -67,9 +67,11 @@ export default function Navbar() {
               <button
                 onClick={handleLogout}
                 title="Log out"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
+                aria-label="Log out"
+                className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-red-600 transition"
               >
                 <LogOut className="h-4 w-4" />
+                <span className="hidden md:inline">Sign Out</span>
               </button>
             </div>
           </div>

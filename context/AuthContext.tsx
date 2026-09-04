@@ -10,7 +10,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (data: AuthResponse) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -61,10 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(data.access_token);
   };
 
-  const logout = () => {
-    clearSession();
-    setUser(null);
-    setToken(null);
+  const logout = async () => {
+    try {
+      await apiClient("/auth/logout", { method: "POST", skipAuth: true });
+    } catch {
+      // Stateless token: logout succeeds on client regardless of network status
+    } finally {
+      clearSession();
+      setUser(null);
+      setToken(null);
+    }
   };
 
   return (
