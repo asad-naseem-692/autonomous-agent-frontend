@@ -1,6 +1,11 @@
 import { getToken, clearSession } from "./auth";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const formattedBaseUrl =
+  rawBaseUrl.startsWith("http://") || rawBaseUrl.startsWith("https://")
+    ? rawBaseUrl
+    : `https://${rawBaseUrl}`;
+const BASE_URL = formattedBaseUrl.replace(/\/+$/, "");
 
 interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
@@ -37,8 +42,14 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     let errorDetail = "An unexpected error occurred.";
     try {
       const errorJson = await response.json();
-      if (errorJson.detail) {
+      if (typeof errorJson.detail === "string") {
         errorDetail = errorJson.detail;
+      } else if (Array.isArray(errorJson.detail) && errorJson.detail.length > 0) {
+        errorDetail = errorJson.detail
+          .map((item: { msg?: string }) => item.msg || JSON.stringify(item))
+          .join(", ");
+      } else if (errorJson.message) {
+        errorDetail = errorJson.message;
       }
     } catch {
       errorDetail = response.statusText || errorDetail;
