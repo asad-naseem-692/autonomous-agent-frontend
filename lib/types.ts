@@ -18,3 +18,44 @@ export interface AuthResponse {
 export interface ApiError {
   detail: string;
 }
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
+export interface ExecutionLog {
+  id: string;
+  conversation_id: string;
+  tool_name: string;
+  tool_input: Record<string, any>;
+  tool_output: Record<string, any> | any[] | null;
+  status: "executed" | "pending_approval" | "rejected" | "failed";
+  created_at: string;
+}
+
+export interface Conversation {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+}
+
+export interface SendMessageResponse {
+  conversation_id: string;
+  user_message: Message;
+  agent_response: Message;
+  tool_calls: ExecutionLog[];
+}
+
+export interface ConversationDetail {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  messages: Message[];
+  execution_logs: ExecutionLog[];
+}

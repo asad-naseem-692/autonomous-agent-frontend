@@ -7,7 +7,7 @@ const formattedBaseUrl =
     : `https://${rawBaseUrl}`;
 const BASE_URL = formattedBaseUrl.replace(/\/+$/, "");
 
-interface RequestOptions extends RequestInit {
+export interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
@@ -64,3 +64,27 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
 
   return (await response.json()) as T;
 }
+
+apiClient.get = <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
+  return apiClient<T>(endpoint, { ...options, method: "GET" });
+};
+
+apiClient.post = <T>(endpoint: string, body?: any, options: RequestOptions = {}): Promise<T> => {
+  return apiClient<T>(endpoint, {
+    ...options,
+    method: "POST",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+};
+
+apiClient.put = <T>(endpoint: string, body?: any, options: RequestOptions = {}): Promise<T> => {
+  return apiClient<T>(endpoint, {
+    ...options,
+    method: "PUT",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+};
+
+apiClient.delete = <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
+  return apiClient<T>(endpoint, { ...options, method: "DELETE" });
+};
