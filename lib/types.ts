@@ -59,3 +59,15 @@ export interface ConversationDetail {
   messages: Message[];
   execution_logs: ExecutionLog[];
 }
+
+export interface ApprovalRequest {
+  id: string;
+  conversation_id: string;
+  tool_name: string;
+  tool_input: Record<string, any>;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  message: string | null;
+}

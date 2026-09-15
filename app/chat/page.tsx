@@ -11,10 +11,12 @@ import {
   ExecutionLog,
   SendMessageResponse,
   ConversationDetail,
+  ApprovalRequest,
 } from "@/lib/types";
 import ChatInput from "@/components/chat/ChatInput";
 import ThinkingIndicator from "@/components/chat/ThinkingIndicator";
 import MessageBubble from "@/components/chat/MessageBubble";
+import ApprovalCard from "@/components/chat/ApprovalCard";
 import {
   MessageSquare,
   Plus,
@@ -30,6 +32,7 @@ export default function ChatPage() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [toolCallsMap, setToolCallsMap] = useState<Record<string, ExecutionLog[]>>({});
+  const [approvalCardsMap, setApprovalCardsMap] = useState<Record<string, ApprovalRequest>>({});
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingConvs, setIsLoadingConvs] = useState<boolean>(true);
@@ -90,6 +93,7 @@ export default function ChatPage() {
     setActiveConversationId(null);
     setMessages([]);
     setToolCallsMap({});
+    setApprovalCardsMap({});
     setError(null);
   };
 
@@ -139,11 +143,38 @@ export default function ChatPage() {
           ...prev,
           [response.agent_response.id]: response.tool_calls,
         }));
+
+        // Extract any pending_approval tool outputs and create approval cards
+        const newApprovals: Record<string, ApprovalRequest> = {};
+        for (const tc of response.tool_calls) {
+          if (
+            tc.status === "pending_approval" &&
+            tc.tool_output &&
+            typeof tc.tool_output === "object" &&
+            !Array.isArray(tc.tool_output) &&
+            (tc.tool_output as any).approval_id
+          ) {
+            const out = tc.tool_output as any;
+            newApprovals[response.agent_response.id] = {
+              id: out.approval_id,
+              conversation_id: response.conversation_id,
+              tool_name: tc.tool_name,
+              tool_input: tc.tool_input,
+              status: "pending",
+              created_at: tc.created_at,
+              resolved_at: null,
+              resolved_by: null,
+              message: null,
+            };
+          }
+        }
+        if (Object.keys(newApprovals).length > 0) {
+          setApprovalCardsMap((prev) => ({ ...prev, ...newApprovals }));
+        }
       }
     } catch (err: any) {
       console.error("Failed to send message:", err);
       setError(err?.message || "Failed to process message with agent.");
-      // Keep optimistic message or indicate error
     } finally {
       setIsThinking(false);
     }
@@ -198,10 +229,10 @@ export default function ChatPage() {
             </div>
 
             <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-400 flex items-center justify-between">
-              <span>Read Tools: Active</span>
+              <span>Write Tools: Active</span>
               <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                Module 2
+                Module 3
               </span>
             </div>
           </aside>
@@ -221,7 +252,7 @@ export default function ChatPage() {
                       : "New Session"}
                   </h2>
                   <p className="text-[11px] text-slate-500">
-                    Agent reasoning loop with live database read tools
+                    Read + Write tools with human approval workflow
                   </p>
                 </div>
               </div>
@@ -266,30 +297,44 @@ export default function ChatPage() {
                       "What is the status of order ord-101?"
                     </button>
                     <button
-                      onClick={() => handleSendMessage("Show me the order history for customer Alice.")}
-                      className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 transition-all shadow-2xs"
+                      onClick={() => handleSendMessage("Apply a $25 credit to customer c002-bob-jones for a delayed shipment.")}
+                      className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-slate-700 hover:border-amber-400 hover:bg-amber-100/50 transition-all shadow-2xs"
                     >
-                      <strong className="block font-semibold text-slate-900">Order History</strong>
-                      "Show me order history for Alice."
+                      <strong className="block font-semibold text-slate-900">&#9888;&#65039; Apply Credit</strong>
+                      Apply $25 credit to Bob Jones (needs approval)
                     </button>
                     <button
-                      onClick={() => handleSendMessage("Calculate balance and dues for Alice.")}
-                      className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 transition-all shadow-2xs"
+                      onClick={() => handleSendMessage("Cancel order ord-103 for Bob because he changed his mind.")}
+                      className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-slate-700 hover:border-amber-400 hover:bg-amber-100/50 transition-all shadow-2xs"
                     >
-                      <strong className="block font-semibold text-slate-900">Balance & Dues</strong>
-                      "Calculate balance and dues for Alice."
+                      <strong className="block font-semibold text-slate-900">&#9888;&#65039; Cancel Order</strong>
+                      Cancel order ord-103 for Bob (needs approval)
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Messages */}
+              {/* Messages + inline ApprovalCards */}
               {messages.map((msg) => (
-                <MessageBubble
-                  key={msg.id}
-                  message={msg}
-                  toolCalls={toolCallsMap[msg.id] || []}
-                />
+                <React.Fragment key={msg.id}>
+                  <MessageBubble
+                    message={msg}
+                    toolCalls={toolCallsMap[msg.id] || []}
+                  />
+                  {msg.role === "assistant" && approvalCardsMap[msg.id] && (
+                    <div className="ml-10 max-w-xl">
+                      <ApprovalCard
+                        approval={approvalCardsMap[msg.id]}
+                        onResolved={(updated) =>
+                          setApprovalCardsMap((prev) => ({
+                            ...prev,
+                            [msg.id]: updated,
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
 
               {/* Agent Thinking Indicator (FEAT-08) */}
