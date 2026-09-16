@@ -250,7 +250,7 @@ export default function AdminPage() {
               }`}
             >
               <Users className="h-4 w-4" />
-              <span>Operators & Access Control (FEAT-16, 18)</span>
+              <span>Operators & Access Control</span>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
                 {users.length}
               </span>
@@ -265,7 +265,7 @@ export default function AdminPage() {
               }`}
             >
               <Activity className="h-4 w-4" />
-              <span>System Audit Logs (FEAT-17)</span>
+              <span>System Audit Logs</span>
             </button>
           </div>
 

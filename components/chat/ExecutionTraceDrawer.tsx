@@ -281,8 +281,8 @@ export default function ExecutionTraceDrawer({
 
         {/* Drawer Footer */}
         <div className="border-t border-slate-100 px-5 py-3 bg-slate-50 text-[11px] text-slate-500 flex items-center justify-between">
-          <span>Execution Trace & History (Module 6)</span>
-          <span className="font-mono text-[10px] text-slate-400">FEAT-15 / FEAT-25</span>
+          <span>Execution Audit Trace</span>
+          <span className="text-[10px] text-slate-400">Live Telemetry</span>
         </div>
       </div>
     </div>

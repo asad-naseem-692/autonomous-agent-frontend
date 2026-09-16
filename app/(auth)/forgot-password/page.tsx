@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
             {resetToken && (
               <div className="mt-3 pt-3 border-t border-emerald-200">
                 <p className="text-xs font-semibold text-emerald-900 mb-1.5">
-                  Development / Demo Link:
+                  Password Reset Link:
                 </p>
                 <Link
                   href={`/reset-password?token=${encodeURIComponent(resetToken)}`}

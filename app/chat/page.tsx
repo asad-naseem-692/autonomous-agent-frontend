@@ -285,18 +285,18 @@ export default function ChatPage() {
               )}
             </div>
 
-            <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-400 flex items-center justify-between">
-              <span>Write Tools: Active</span>
+            <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-500 flex items-center justify-between">
+              <span>System Status</span>
               <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                Module 3
+                Operational
               </span>
             </div>
           </aside>
 
           {/* Main Chat Area */}
           <main className="flex flex-1 flex-col overflow-hidden bg-slate-50/60">
-            {/* Thread Header with Execution Trace Button (FEAT-15) */}
+            {/* Thread Header with Execution Trace Button */}
             <div className="flex items-center justify-between border-b border-slate-200/80 bg-white/80 backdrop-blur-xs px-6 py-3">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -307,7 +307,7 @@ export default function ChatPage() {
                     {activeConversationId ? activeTitle : "New Session"}
                   </h2>
                   <p className="text-[11px] text-slate-500">
-                    Read + Write tools with human approval workflow
+                    Autonomous operations assistant with human approval oversight
                   </p>
                 </div>
               </div>
