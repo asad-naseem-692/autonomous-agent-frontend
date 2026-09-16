@@ -52,15 +52,15 @@ export default function Navbar() {
 
             <div className="flex items-center gap-3 border-l border-slate-200 pl-3 sm:pl-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-950 text-white text-xs font-bold shadow-xs">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-950 text-white text-xs font-bold shadow-xs">
                   {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
                 </div>
-                <div className="text-right hidden sm:block">
+                <div className="flex flex-col items-start hidden sm:flex">
                   <p className="text-xs font-semibold text-slate-900 leading-tight truncate max-w-[120px]">
                     {user.name || user.email}
                   </p>
                   <span
-                    className={`inline-block px-1.5 py-0.2 text-[9px] font-bold rounded-md uppercase tracking-wider border ${
+                    className={`mt-0.5 inline-block px-1.5 py-px text-[9px] font-bold rounded-md uppercase tracking-wider border ${
                       user.role === "admin"
                         ? "bg-purple-50 text-purple-700 border-purple-200"
                         : "bg-blue-50 text-blue-700 border-blue-200"
