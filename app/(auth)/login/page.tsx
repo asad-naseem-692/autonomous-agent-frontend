@@ -138,7 +138,7 @@ export default function LoginPage() {
             disabled={isSubmitting}
             className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 text-xs font-bold text-white shadow-sm shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 focus:outline-none disabled:opacity-60 transition-all cursor-pointer mt-2"
           >
-            {isSubmitting ? "Authenticating Session..." : "Sign In to Console"}
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
@@ -150,11 +150,6 @@ export default function LoginPage() {
           >
             Create Operator Account
           </Link>
-        </div>
-
-        <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-[11px] text-slate-400">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-          <span>Zero-Mutation Safety Protocol Active</span>
         </div>
       </div>
     </div>

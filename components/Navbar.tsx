@@ -23,24 +23,10 @@ export default function Navbar() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/20 ring-1 ring-white/20 group-hover:scale-105 transition-transform">
               <Bot className="h-5 w-5" />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold tracking-tight text-slate-900 text-base sm:text-lg">
-                OpsAgent
-              </span>
-              <span className="hidden sm:inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 uppercase tracking-wider border border-slate-200/60">
-                Enterprise
-              </span>
-            </div>
-          </Link>
-
-          {/* Real-time System Operational Pulse */}
-          <div className="hidden lg:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/60 px-3 py-1 text-xs font-medium text-emerald-800">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span className="font-bold tracking-tight text-slate-900 text-base sm:text-lg">
+              OpsAgent
             </span>
-            <span>AI Operations Engine Active</span>
-          </div>
+          </Link>
         </div>
 
         {user ? (

@@ -74,9 +74,9 @@ export default function ChatInput({
           <Send className="h-4 w-4" />
         </button>
       </form>
-      <div className="flex items-center justify-between px-2 text-[11px] text-slate-600">
-        <span>Autonomous AI with zero pre-approval mutation safety guarantee</span>
-        <span className="hidden sm:inline-block font-mono text-[10px] text-slate-600">
+      <div className="flex items-center justify-between px-2 text-[11px] text-slate-500">
+        <span>Type an instruction or customer inquiry to get started</span>
+        <span className="hidden sm:inline-block font-mono text-[10px] text-slate-500">
           <kbd className="rounded bg-slate-100 px-1.5 py-0.5 border border-slate-200 text-slate-600 font-semibold">Enter ↵</kbd> send &middot; <kbd className="rounded bg-slate-100 px-1.5 py-0.5 border border-slate-200 text-slate-600 font-semibold">Shift + Enter</kbd> new line
         </span>
       </div>

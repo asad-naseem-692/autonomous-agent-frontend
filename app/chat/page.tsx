@@ -313,17 +313,6 @@ export default function ChatPage() {
                   })
               )}
             </div>
-
-            <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-500 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5 text-slate-400" />
-                Security Guardrails
-              </span>
-              <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                Active
-              </span>
-            </div>
           </aside>
 
           {/* Main Chat Area */}
@@ -339,7 +328,7 @@ export default function ChatPage() {
                     {activeConversationId ? activeTitle : "New Operations Session"}
                   </h2>
                   <p className="text-[11px] text-slate-500 hidden sm:block">
-                    Autonomous AI Operations with Zero Pre-Approval Mutation Buffer
+                    Query customer details, track orders, and manage operations
                   </p>
                 </div>
               </div>

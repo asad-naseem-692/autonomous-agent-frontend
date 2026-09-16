@@ -12,11 +12,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-50/70 flex flex-col">
       <Navbar />
       <main className="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-5xl mx-auto py-16">
-        <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-1 text-xs font-bold text-blue-700 mb-6 shadow-2xs">
-          <Zap className="h-3.5 w-3.5 text-blue-600" />
-          <span>Next-Gen Enterprise AI Operations</span>
-        </div>
-
         <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 mb-5 max-w-3xl leading-tight">
           Safe, Autonomous Operations <br className="hidden sm:inline" />
           <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -53,7 +48,7 @@ export default function HomePage() {
               href="/login"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 transition cursor-pointer"
             >
-              <span>Sign In to Console</span>
+              <span>Sign In</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
