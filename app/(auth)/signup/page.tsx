@@ -76,17 +76,17 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-slate-50">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm border border-slate-200">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-slate-50/70">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-md border border-slate-200/90">
         <div className="text-center mb-8">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 mb-3">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/25 mb-3">
             <UserPlus className="h-6 w-6" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             Create Operator Account
           </h2>
-          <p className="text-sm text-slate-600 mt-1">
-            Sign up to access the Autonomous Business Agent
+          <p className="text-xs text-slate-500 mt-1">
+            Access the OpsAgent Autonomous Operations Platform
           </p>
         </div>
 
@@ -192,9 +192,9 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60 transition mt-2"
+            className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 text-xs font-bold text-white shadow-sm shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 focus:outline-none disabled:opacity-60 transition-all cursor-pointer mt-2"
           >
-            {isSubmitting ? "Creating Account..." : "Create Account"}
+            {isSubmitting ? "Creating Account..." : "Register Operator Account"}
           </button>
         </form>
 

@@ -237,6 +237,74 @@ export default function AdminPage() {
                 </button>
               </div>
             )}
+
+            {/* Executive KPI Overview Cards */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Accounts</span>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-700 border border-purple-100">
+                    <Users className="h-3.5 w-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-slate-900">{users.length}</span>
+                  <span className="text-xs text-slate-500 font-medium">registered</span>
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  {users.filter(u => u.role === "admin").length} Admins &middot; {users.filter(u => u.role === "operator").length} Operators
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Workforce</span>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
+                    <UserCheck className="h-3.5 w-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-emerald-700">
+                    {users.filter(u => u.is_active).length}
+                  </span>
+                  <span className="text-xs text-slate-500 font-medium">active</span>
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  {users.filter(u => !u.is_active).length} suspended accounts
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Audit Stream</span>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                    <Activity className="h-3.5 w-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-slate-900">{logs.length > 0 ? logs.length : "Live"}</span>
+                  <span className="text-xs text-slate-500 font-medium">events indexed</span>
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Cross-operator trace logs
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">HITL Guardrail</span>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700 border border-amber-100">
+                    <Shield className="h-3.5 w-3.5" />
+                  </div>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-base font-extrabold text-amber-700">Strict Enforcement</span>
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Zero pre-approval DB mutation
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Navigation Tabs */}

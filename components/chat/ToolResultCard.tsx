@@ -76,16 +76,23 @@ export default function ToolResultCard({ log }: ToolResultCardProps) {
           {customers.map((c, idx) => (
             <div
               key={idx}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white p-2.5 text-xs shadow-2xs"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs hover:border-slate-300 transition-colors"
             >
-              <div>
-                <span className="font-semibold text-slate-900">{c.name}</span>
-                <span className="ml-2 text-slate-500 font-mono">({c.email})</span>
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-100">
+                  {c.name ? c.name.charAt(0) : "C"}
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block text-xs">{c.name}</span>
+                  <span className="text-slate-500 font-mono text-[11px]">{c.email}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-slate-400">ID: {c.id}</span>
-                <span className="rounded-md bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700 border border-emerald-200">
-                  Credit: ${c.balance?.toFixed(2) ?? "0.00"}
+              <div className="flex items-center gap-2.5">
+                <span className="font-mono text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                  ID: {c.id}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200 shadow-2xs">
+                  Available Credit: ${c.balance?.toFixed(2) ?? "0.00"}
                 </span>
               </div>
             </div>
@@ -97,22 +104,22 @@ export default function ToolResultCard({ log }: ToolResultCardProps) {
     if (log.tool_name === "get_order") {
       const order = typeof output === "object" ? output : {};
       return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-xl border border-slate-100 bg-white p-3 text-xs shadow-2xs">
-          <div>
-            <span className="block text-slate-400">Order ID</span>
-            <span className="font-semibold font-mono text-slate-800">{order.id}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Order ID</span>
+            <span className="font-bold font-mono text-slate-900 text-xs mt-0.5 block">{order.id}</span>
           </div>
-          <div>
-            <span className="block text-slate-400">Customer ID</span>
-            <span className="font-medium font-mono text-slate-600 truncate block">{order.customer_id}</span>
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer ID</span>
+            <span className="font-semibold font-mono text-slate-700 text-xs truncate mt-0.5 block">{order.customer_id}</span>
           </div>
-          <div>
-            <span className="block text-slate-400">Status</span>
-            <div className="mt-0.5">{getStatusBadge(order.status)}</div>
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Fulfillment Status</span>
+            <div className="mt-1">{getStatusBadge(order.status)}</div>
           </div>
-          <div>
-            <span className="block text-slate-400">Amount</span>
-            <span className="font-bold text-slate-900">${order.amount?.toFixed(2)}</span>
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Value</span>
+            <span className="font-extrabold text-slate-900 text-sm mt-0.5 block">${order.amount?.toFixed(2)}</span>
           </div>
         </div>
       );
@@ -121,28 +128,31 @@ export default function ToolResultCard({ log }: ToolResultCardProps) {
     if (log.tool_name === "get_order_history") {
       const orders = Array.isArray(output.orders) ? output.orders : [];
       return (
-        <div className="space-y-2">
-          <div className="text-xs text-slate-500 flex justify-between">
-            <span>Customer: <strong className="font-mono text-slate-700">{output.customer_id}</strong></span>
-            <span>Total Orders: <strong className="text-slate-800">{orders.length}</strong></span>
+        <div className="space-y-2.5">
+          <div className="text-xs text-slate-600 flex items-center justify-between px-1">
+            <span className="flex items-center gap-1.5">
+              <span>Customer:</span>
+              <strong className="font-mono text-slate-800 bg-slate-100 px-1.5 py-0.2 rounded">{output.customer_id}</strong>
+            </span>
+            <span>Total Orders: <strong className="text-slate-900 font-bold">{orders.length}</strong></span>
           </div>
           {orders.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">No orders found.</p>
+            <p className="text-xs text-slate-400 italic p-3 text-center bg-white rounded-xl border border-slate-100">No historical orders found.</p>
           ) : (
-            <div className="divide-y divide-slate-100 rounded-xl border border-slate-100 bg-white shadow-2xs overflow-hidden">
+            <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white shadow-2xs overflow-hidden">
               {orders.map((ord: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-2.5 text-xs hover:bg-slate-50">
+                <div key={idx} className="flex items-center justify-between p-3 text-xs hover:bg-slate-50/80 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono font-semibold text-slate-800">{ord.id}</span>
+                    <span className="font-mono font-bold text-slate-900">{ord.id}</span>
                     {getStatusBadge(ord.status)}
                   </div>
                   <div className="flex items-center gap-3">
                     {ord.created_at && (
-                      <span className="text-slate-400 hidden sm:inline">
+                      <span className="text-slate-400 hidden sm:inline font-mono text-[11px]">
                         {new Date(ord.created_at).toLocaleDateString()}
                       </span>
                     )}
-                    <span className="font-bold text-slate-900">${ord.amount?.toFixed(2)}</span>
+                    <span className="font-bold text-slate-900 text-sm">${ord.amount?.toFixed(2)}</span>
                   </div>
                 </div>
               ))}
@@ -154,23 +164,23 @@ export default function ToolResultCard({ log }: ToolResultCardProps) {
 
     if (log.tool_name === "calculate_balance") {
       return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-xl border border-slate-100 bg-white p-3 text-xs shadow-2xs">
-          <div>
-            <span className="block text-slate-400">Customer</span>
-            <span className="font-semibold text-slate-800">{output.customer_name || output.customer_id}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer</span>
+            <span className="font-bold text-slate-900 text-xs mt-0.5 block truncate">{output.customer_name || output.customer_id}</span>
           </div>
-          <div>
-            <span className="block text-slate-400">Store Credit</span>
-            <span className="font-semibold text-emerald-700">${output.credit_balance?.toFixed(2)}</span>
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Store Credit</span>
+            <span className="font-bold text-emerald-700 text-sm mt-0.5 block">${output.credit_balance?.toFixed(2)}</span>
           </div>
-          <div>
-            <span className="block text-slate-400">Unpaid Dues</span>
-            <span className="font-semibold text-amber-700">${output.unpaid_orders_amount?.toFixed(2)}</span>
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Unpaid Dues</span>
+            <span className="font-bold text-amber-700 text-sm mt-0.5 block">${output.unpaid_orders_amount?.toFixed(2)}</span>
           </div>
-          <div>
-            <span className="block text-slate-400">Net Balance</span>
+          <div className="rounded-lg bg-slate-50/70 p-2.5 border border-slate-100">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Net Balance</span>
             <span
-              className={`font-bold text-sm ${
+              className={`font-extrabold text-sm mt-0.5 block ${
                 (output.net_balance ?? 0) >= 0 ? "text-emerald-700" : "text-rose-600"
               }`}
             >
@@ -183,7 +193,7 @@ export default function ToolResultCard({ log }: ToolResultCardProps) {
 
     // Default fallback
     return (
-      <pre className="max-h-40 overflow-x-auto rounded-lg bg-slate-900 p-2 font-mono text-[11px] text-slate-200">
+      <pre className="max-h-40 overflow-x-auto rounded-xl bg-slate-900 p-3 font-mono text-[11px] text-slate-200 border border-slate-800">
         {JSON.stringify(output, null, 2)}
       </pre>
     );
@@ -227,30 +237,30 @@ export default function ToolResultCard({ log }: ToolResultCardProps) {
   const meta = getToolMeta();
 
   return (
-    <div className="my-2 max-w-2xl rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 shadow-2xs transition-all">
+    <div className="my-2.5 max-w-2xl rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-slate-300 transition-all">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex cursor-pointer items-center justify-between gap-2 select-none"
       >
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-white shadow-2xs border border-slate-200">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-2xs border border-slate-200">
             {meta.icon}
           </div>
-          <span className="text-xs font-semibold text-slate-800">{meta.title}</span>
-          <span className={`rounded-md border px-1.5 py-0.2 text-[10px] font-mono ${meta.badgeColor}`}>
+          <span className="text-xs font-bold text-slate-900">{meta.title}</span>
+          <span className={`rounded-md border px-1.5 py-0.2 text-[10px] font-mono font-medium ${meta.badgeColor}`}>
             {log.tool_name}
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-slate-400 hover:text-slate-600">
-          <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Executed
+          <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Executed
           </span>
           {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </div>
       </div>
 
-      {isExpanded && <div className="mt-2.5 pt-2 border-t border-slate-200/60">{renderToolContent()}</div>}
+      {isExpanded && <div className="mt-3 pt-2.5 border-t border-slate-200/80">{renderToolContent()}</div>}
     </div>
   );
 }

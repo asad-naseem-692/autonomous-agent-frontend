@@ -27,11 +27,18 @@ import {
   History,
   Activity,
   Calendar,
+  Search,
+  Shield,
+  UserSearch,
+  Package,
+  DollarSign,
+  X,
 } from "lucide-react";
 
 export default function ChatPage() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [convSearch, setConvSearch] = useState<string>("");
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [toolCallsMap, setToolCallsMap] = useState<Record<string, ExecutionLog[]>>({});
@@ -238,20 +245,40 @@ export default function ChatPage() {
         <Navbar />
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar: Conversation History (FEAT-14) */}
-          <aside className="hidden md:flex w-72 flex-col border-r border-slate-200 bg-white">
-            <div className="p-3 border-b border-slate-100">
+          {/* Left Sidebar: Conversation History */}
+          <aside className="hidden md:flex w-72 flex-col border-r border-slate-200/80 bg-white">
+            <div className="p-3 border-b border-slate-100 space-y-2">
               <button
                 onClick={startNewConversation}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
-                <span>New Conversation</span>
+                <span>New Session</span>
               </button>
+
+              {/* Search Past Sessions */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Filter past sessions..."
+                  value={convSearch}
+                  onChange={(e) => setConvSearch(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50/60 pl-8 pr-7 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none transition-colors"
+                />
+                {convSearch && (
+                  <button
+                    onClick={() => setConvSearch("")}
+                    className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
-              <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <div className="px-2 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <History className="h-3.5 w-3.5" /> Recent Sessions
               </div>
 
@@ -260,36 +287,41 @@ export default function ChatPage() {
               ) : conversations.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-400">No past conversations yet.</div>
               ) : (
-                conversations.map((conv) => {
-                  const isActive = conv.id === activeConversationId;
-                  return (
-                    <button
-                      key={conv.id}
-                      onClick={() => selectConversation(conv.id)}
-                      className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs transition-colors ${
-                        isActive
-                          ? "bg-blue-50 text-blue-900 font-semibold border border-blue-200/80 shadow-2xs"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                      }`}
-                    >
-                      <MessageSquare className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
-                      <div className="flex flex-col flex-1 min-w-0">
-                        <span className="truncate">{conv.title}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {formatSidebarDate(conv.created_at)}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })
+                conversations
+                  .filter((conv) => conv.title.toLowerCase().includes(convSearch.toLowerCase()))
+                  .map((conv) => {
+                    const isActive = conv.id === activeConversationId;
+                    return (
+                      <button
+                        key={conv.id}
+                        onClick={() => selectConversation(conv.id)}
+                        className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs transition-all ${
+                          isActive
+                            ? "bg-blue-50 text-blue-900 font-bold border border-blue-200 shadow-2xs"
+                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        }`}
+                      >
+                        <MessageSquare className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="truncate">{conv.title}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {formatSidebarDate(conv.created_at)}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })
               )}
             </div>
 
             <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-[11px] text-slate-500 flex items-center justify-between">
-              <span>System Status</span>
-              <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
+              <span className="flex items-center gap-1.5">
+                <Shield className="h-3.5 w-3.5 text-slate-400" />
+                Security Guardrails
+              </span>
+              <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                Operational
+                Active
               </span>
             </div>
           </aside>
@@ -297,27 +329,27 @@ export default function ChatPage() {
           {/* Main Chat Area */}
           <main className="flex flex-1 flex-col overflow-hidden bg-slate-50/60">
             {/* Thread Header with Execution Trace Button */}
-            <div className="flex items-center justify-between border-b border-slate-200/80 bg-white/80 backdrop-blur-xs px-6 py-3">
+            <div className="flex items-center justify-between border-b border-slate-200/80 bg-white/90 backdrop-blur-xs px-6 py-3">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xs">
                   <Bot className="h-4 w-4" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    {activeConversationId ? activeTitle : "New Session"}
+                  <h2 className="text-xs sm:text-sm font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
+                    {activeConversationId ? activeTitle : "New Operations Session"}
                   </h2>
-                  <p className="text-[11px] text-slate-500">
-                    Autonomous operations assistant with human approval oversight
+                  <p className="text-[11px] text-slate-500 hidden sm:block">
+                    Autonomous AI Operations with Zero Pre-Approval Mutation Buffer
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                {/* Execution Trace Button (FEAT-15) */}
+                {/* Execution Trace Button */}
                 <button
                   onClick={() => setIsTraceOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition-all"
-                  title="View full step-by-step tool execution trace"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
+                  title="Inspect step-by-step execution timeline"
                 >
                   <Activity className="h-3.5 w-3.5 text-blue-600" />
                   <span className="hidden sm:inline">Execution Trace</span>
@@ -332,7 +364,7 @@ export default function ChatPage() {
                 <div className="flex md:hidden">
                   <button
                     onClick={startNewConversation}
-                    className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                    className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700"
                   >
                     <Plus className="h-3.5 w-3.5" /> New
                   </button>
@@ -343,46 +375,79 @@ export default function ChatPage() {
             {/* Message Thread */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {messages.length === 0 && !isThinking && (
-                <div className="mx-auto max-w-xl my-12 text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md mb-4">
+                <div className="mx-auto max-w-2xl my-8 text-center animate-in fade-in duration-300">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 mb-4">
                     <Sparkles className="h-7 w-7" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900">
-                    Operations Intelligence Agent
+                  <h3 className="text-xl font-bold tracking-tight text-slate-900">
+                    Operations Intelligence Console
                   </h3>
-                  <p className="mt-1 text-sm text-slate-600 max-w-md mx-auto">
-                    Ask me anything regarding customer accounts, order details, order histories, or account balances.
+                  <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                    AI-driven customer support, order fulfillment, and financial adjustments protected by human-in-the-loop authorization.
                   </p>
 
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
-                    <button
-                      onClick={() => handleSendMessage("Can you find customer Alice and show her details?")}
-                      className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 transition-all shadow-2xs"
-                    >
-                      <strong className="block font-semibold text-slate-900">Customer Lookup</strong>
-                      "Can you find customer Alice?"
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage("What is the status of order ord-101?")}
-                      className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 transition-all shadow-2xs"
-                    >
-                      <strong className="block font-semibold text-slate-900">Order Inspection</strong>
-                      "What is the status of order ord-101?"
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage("Apply a $25 credit to customer c002-bob-jones for a delayed shipment.")}
-                      className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-slate-700 hover:border-amber-400 hover:bg-amber-100/50 transition-all shadow-2xs"
-                    >
-                      <strong className="block font-semibold text-slate-900">&#9888;&#65039; Apply Credit</strong>
-                      Apply $25 credit to Bob Jones (needs approval)
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage("Cancel order ord-103 for Bob because he changed his mind.")}
-                      className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-slate-700 hover:border-amber-400 hover:bg-amber-100/50 transition-all shadow-2xs"
-                    >
-                      <strong className="block font-semibold text-slate-900">&#9888;&#65039; Cancel Order</strong>
-                      Cancel order ord-103 for Bob (needs approval)
-                    </button>
+                  <div className="mt-8 space-y-4 text-left">
+                    <div>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2 px-1">
+                        Autonomous Read Queries (Instant Execution)
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <button
+                          onClick={() => handleSendMessage("Can you find customer Alice Smith and show her details?")}
+                          className="group flex flex-col items-start rounded-xl border border-slate-200/80 bg-white p-3 text-left shadow-2xs hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-xs transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs mb-1">
+                            <UserSearch className="h-3.5 w-3.5" /> Customer Lookup
+                          </div>
+                          <span className="text-xs text-slate-600 group-hover:text-slate-900">
+                            "Find customer Alice Smith and check her balance"
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => handleSendMessage("What is the status of order ord-101?")}
+                          className="group flex flex-col items-start rounded-xl border border-slate-200/80 bg-white p-3 text-left shadow-2xs hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-xs transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-1.5 text-blue-600 font-bold text-xs mb-1">
+                            <Package className="h-3.5 w-3.5" /> Order Inspection
+                          </div>
+                          <span className="text-xs text-slate-600 group-hover:text-slate-900">
+                            "What is the status of order ord-101?"
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 block mb-2 px-1">
+                        Sensitive Actions (Requires Human Authorization)
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <button
+                          onClick={() => handleSendMessage("Apply a $25 credit to customer c002-bob-jones for a delayed shipment.")}
+                          className="group flex flex-col items-start rounded-xl border border-amber-200/80 bg-amber-50/40 p-3 text-left shadow-2xs hover:border-amber-400 hover:bg-amber-100/40 hover:shadow-xs transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-1.5 text-amber-700 font-bold text-xs mb-1">
+                            <DollarSign className="h-3.5 w-3.5" /> Apply Store Credit
+                          </div>
+                          <span className="text-xs text-slate-600 group-hover:text-slate-900">
+                            "Apply $25 credit to Bob Jones for delayed shipment"
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => handleSendMessage("Cancel order ord-103 for Bob because he changed his mind.")}
+                          className="group flex flex-col items-start rounded-xl border border-amber-200/80 bg-amber-50/40 p-3 text-left shadow-2xs hover:border-amber-400 hover:bg-amber-100/40 hover:shadow-xs transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-1.5 text-rose-600 font-bold text-xs mb-1">
+                            <Shield className="h-3.5 w-3.5" /> Cancel Customer Order
+                          </div>
+                          <span className="text-xs text-slate-600 group-hover:text-slate-900">
+                            "Cancel order ord-103 for Bob (changed mind)"
+                          </span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
