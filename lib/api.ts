@@ -85,6 +85,14 @@ apiClient.put = <T>(endpoint: string, body?: any, options: RequestOptions = {}):
   });
 };
 
+apiClient.patch = <T>(endpoint: string, body?: any, options: RequestOptions = {}): Promise<T> => {
+  return apiClient<T>(endpoint, {
+    ...options,
+    method: "PATCH",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+};
+
 apiClient.delete = <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
   return apiClient<T>(endpoint, { ...options, method: "DELETE" });
 };

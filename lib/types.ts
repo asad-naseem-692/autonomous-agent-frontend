@@ -71,3 +71,10 @@ export interface ApprovalRequest {
   resolved_by: string | null;
   message: string | null;
 }
+
+export interface AdminExecutionLog extends ExecutionLog {
+  user_id?: string;
+  user_name?: string;
+  user_email?: string;
+  conversation_title?: string;
+}
