@@ -17,6 +17,7 @@ import ChatInput from "@/components/chat/ChatInput";
 import ThinkingIndicator from "@/components/chat/ThinkingIndicator";
 import MessageBubble from "@/components/chat/MessageBubble";
 import ApprovalCard from "@/components/chat/ApprovalCard";
+import ExecutionTraceDrawer from "@/components/chat/ExecutionTraceDrawer";
 import {
   MessageSquare,
   Plus,
@@ -24,6 +25,8 @@ import {
   AlertCircle,
   Sparkles,
   History,
+  Activity,
+  Calendar,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -33,6 +36,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [toolCallsMap, setToolCallsMap] = useState<Record<string, ExecutionLog[]>>({});
   const [approvalCardsMap, setApprovalCardsMap] = useState<Record<string, ApprovalRequest>>({});
+  const [currentTraceLogs, setCurrentTraceLogs] = useState<ExecutionLog[]>([]);
+  const [isTraceOpen, setIsTraceOpen] = useState<boolean>(false);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingConvs, setIsLoadingConvs] = useState<boolean>(true);
@@ -74,15 +79,42 @@ export default function ChatPage() {
       const detail = await apiClient.get<ConversationDetail>(`/conversations/${convId}`);
       setMessages(detail.messages || []);
 
-      // Group tool calls with their assistant messages if available
       const logs = detail.execution_logs || [];
+      setCurrentTraceLogs(logs);
+
+      // Group tool calls with their assistant messages if available
       const map: Record<string, ExecutionLog[]> = {};
-      // If messages exist, attach logs to the last assistant message or map
       const assistantMsgs = (detail.messages || []).filter((m) => m.role === "assistant");
       if (assistantMsgs.length > 0) {
         map[assistantMsgs[assistantMsgs.length - 1].id] = logs;
       }
       setToolCallsMap(map);
+
+      // Reconstruct approval cards for past write tools
+      const pastApprovals: Record<string, ApprovalRequest> = {};
+      for (const log of logs) {
+        if (
+          log.tool_output &&
+          typeof log.tool_output === "object" &&
+          !Array.isArray(log.tool_output) &&
+          (log.tool_output as any).approval_id
+        ) {
+          const out = log.tool_output as any;
+          const targetMsgId = assistantMsgs.length > 0 ? assistantMsgs[assistantMsgs.length - 1].id : log.id;
+          pastApprovals[targetMsgId] = {
+            id: out.approval_id,
+            conversation_id: convId,
+            tool_name: log.tool_name,
+            tool_input: log.tool_input,
+            status: log.status === "pending_approval" ? "pending" : (log.status as any),
+            created_at: log.created_at,
+            resolved_at: null,
+            resolved_by: null,
+            message: out.message || out.result || null,
+          };
+        }
+      }
+      setApprovalCardsMap(pastApprovals);
     } catch (err: any) {
       console.error("Failed to load conversation details:", err);
       setError("Unable to load message history.");
@@ -94,6 +126,7 @@ export default function ChatPage() {
     setMessages([]);
     setToolCallsMap({});
     setApprovalCardsMap({});
+    setCurrentTraceLogs([]);
     setError(null);
   };
 
@@ -137,12 +170,14 @@ export default function ChatPage() {
         response.agent_response,
       ]);
 
-      // Record tool calls for this assistant message
+      // Record tool calls for this assistant message and trace drawer
       if (response.tool_calls && response.tool_calls.length > 0) {
         setToolCallsMap((prev) => ({
           ...prev,
           [response.agent_response.id]: response.tool_calls,
         }));
+
+        setCurrentTraceLogs((prev) => [...prev, ...response.tool_calls]);
 
         // Extract any pending_approval tool outputs and create approval cards
         const newApprovals: Record<string, ApprovalRequest> = {};
@@ -180,13 +215,30 @@ export default function ChatPage() {
     }
   };
 
+  const formatSidebarDate = (isoString?: string) => {
+    if (!isoString) return "";
+    try {
+      const d = new Date(isoString);
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      if (isToday) {
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      }
+      return d.toLocaleDateString([], { month: "short", day: "numeric" });
+    } catch {
+      return "";
+    }
+  };
+
+  const activeTitle = conversations.find((c) => c.id === activeConversationId)?.title || "Active Session";
+
   return (
     <AuthGuard allowedRoles={["operator", "admin"]}>
       <div className="flex h-screen flex-col bg-slate-50">
         <Navbar />
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar: Conversation History */}
+          {/* Left Sidebar: Conversation History (FEAT-14) */}
           <aside className="hidden md:flex w-72 flex-col border-r border-slate-200 bg-white">
             <div className="p-3 border-b border-slate-100">
               <button
@@ -221,7 +273,12 @@ export default function ChatPage() {
                       }`}
                     >
                       <MessageSquare className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
-                      <span className="truncate flex-1">{conv.title}</span>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="truncate">{conv.title}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {formatSidebarDate(conv.created_at)}
+                        </span>
+                      </div>
                     </button>
                   );
                 })
@@ -239,7 +296,7 @@ export default function ChatPage() {
 
           {/* Main Chat Area */}
           <main className="flex flex-1 flex-col overflow-hidden bg-slate-50/60">
-            {/* Thread Header */}
+            {/* Thread Header with Execution Trace Button (FEAT-15) */}
             <div className="flex items-center justify-between border-b border-slate-200/80 bg-white/80 backdrop-blur-xs px-6 py-3">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -247,9 +304,7 @@ export default function ChatPage() {
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold text-slate-900">
-                    {activeConversationId
-                      ? conversations.find((c) => c.id === activeConversationId)?.title || "Active Session"
-                      : "New Session"}
+                    {activeConversationId ? activeTitle : "New Session"}
                   </h2>
                   <p className="text-[11px] text-slate-500">
                     Read + Write tools with human approval workflow
@@ -257,13 +312,31 @@ export default function ChatPage() {
                 </div>
               </div>
 
-              <div className="flex md:hidden">
+              <div className="flex items-center gap-2">
+                {/* Execution Trace Button (FEAT-15) */}
                 <button
-                  onClick={startNewConversation}
-                  className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                  onClick={() => setIsTraceOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition-all"
+                  title="View full step-by-step tool execution trace"
                 >
-                  <Plus className="h-3.5 w-3.5" /> New
+                  <Activity className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="hidden sm:inline">Execution Trace</span>
+                  <span className="sm:hidden">Trace</span>
+                  {currentTraceLogs.length > 0 && (
+                    <span className="rounded-full bg-blue-100 px-1.5 py-0.2 text-[10px] font-bold text-blue-700">
+                      {currentTraceLogs.length}
+                    </span>
+                  )}
                 </button>
+
+                <div className="flex md:hidden">
+                  <button
+                    onClick={startNewConversation}
+                    className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> New
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -359,6 +432,14 @@ export default function ChatPage() {
             </div>
           </main>
         </div>
+
+        {/* Execution Trace Slide-over Drawer (FEAT-15) */}
+        <ExecutionTraceDrawer
+          isOpen={isTraceOpen}
+          onClose={() => setIsTraceOpen(false)}
+          logs={currentTraceLogs}
+          conversationTitle={activeConversationId ? activeTitle : "New Session"}
+        />
       </div>
     </AuthGuard>
   );
